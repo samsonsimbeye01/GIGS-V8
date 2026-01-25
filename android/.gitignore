@@ -1,0 +1,5 @@
+# Ignore local signing properties
+keystore.properties
+
+# Local.properties (SDK path) should not be committed
+local.properties

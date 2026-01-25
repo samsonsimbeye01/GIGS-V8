@@ -1,0 +1,59 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JAVA_HOME: /opt/hostedtoolcache/jdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 33
+          components: |
+            platform-tools
+            build-tools;33.0.2
+            platforms;android-33
+
+      - name: Generate Gradle wrapper if missing
+        working-directory: android
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "Gradle not found — generating wrapper"
+            gradle wrapper --gradle-version 8.0.2
+          else
+            echo "Using existing gradlew"
+          fi
+
+      - name: Build merged Android project
+        working-directory: android
+        run: |
+          chmod +x gradlew || true
+          ./gradlew clean :gigsapp:app:assembleDebug --no-daemon --stacktrace
+
+      - name: Run unit tests
+        working-directory: android
+        run: |
+          chmod +x gradlew || true
+          ./gradlew :gigsapp:app:testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Run lint
+        working-directory: android
+        run: |
+          chmod +x gradlew || true
+          ./gradlew :gigsapp:app:lintDebug --no-daemon --stacktrace
