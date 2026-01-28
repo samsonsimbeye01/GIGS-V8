@@ -34,7 +34,7 @@ class AuthService {
       });
 
       if (error) return { user: null, error };
-      
+
       // Create user profile
       if (data.user) {
         await this.createUserProfile(data.user, userData);
@@ -81,13 +81,13 @@ class AuthService {
         role: userData?.role || 'worker',
         created_at: new Date().toISOString()
       });
-    
+
     if (error) console.error('Profile creation error:', error);
   }
 
   private transformUser(user: User | null): AuthUser | null {
     if (!user) return null;
-    
+
     const meta = user.user_metadata as UserMetadata;
     return {
       id: user.id,
