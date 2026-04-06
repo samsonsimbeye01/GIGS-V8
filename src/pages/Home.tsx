@@ -1,41 +1,51 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const Home: React.FC = () => {
-    return (
+  const { user } = useAuth();
+
+  return (
+    <div>
+      {/* Hero Section */}
+      <section className="hero">
+        <h1>Welcome to GigApp</h1>
+        <p>Connect with freelancers and manage your gigs efficiently</p>
         <div>
-            <header>
-                {/* Banner Cards Section */}
-                <div className="banner-cards">
-                    <h2>Banner Cards</h2>
-                    {/* Add banner card components here */}
-                </div>
-
-                {/* Stats Grid Section */}
-                <div className="stats-grid">
-                    <h2>Statistics</h2>
-                    {/* Add stats components here */}
-                </div>
-            </header>
-
-            {/* AI Match Highlight Section */}
-            <section className="ai-match-highlight">
-                <h2>AI Match Highlight</h2>
-                {/* Add AI match highlight components here */}
-            </section>
-
-            {/* Trending Categories Section */}
-            <section className="trending-categories">
-                <h2>Trending Categories</h2>
-                {/* Add trending category components here */}
-            </section>
-
-            {/* Premium Gigs Section */}
-            <section className="premium-gigs">
-                <h2>Premium Gigs</h2>
-                {/* Add premium gigs components here */}
-            </section>
+          {!user ? (
+            <>
+              <Link to="/register" className="btn btn-primary">Get Started</Link>
+              <Link to="/login" className="btn btn-secondary">Login</Link>
+            </>
+          ) : (
+            <Link to="/dashboard" className="btn btn-primary">Go to Dashboard</Link>
+          )}
         </div>
-    );
+      </section>
+
+      {/* Features Section */}
+      <section className="container" style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <h2 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>Features</h2>
+        <div className="features-grid">
+          <div className="card">
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🚀</div>
+            <h3>Easy to Use</h3>
+            <p>Our platform is intuitive and easy to navigate.</p>
+          </div>
+          <div className="card">
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>💼</div>
+            <h3>Professional Tools</h3>
+            <p>Access powerful tools to manage your gigs.</p>
+          </div>
+          <div className="card">
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔒</div>
+            <h3>Secure & Safe</h3>
+            <p>Your data is protected with industry-leading security.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Home;
