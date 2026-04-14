@@ -1,0 +1,33 @@
+.linka-colors {
+  --linka-primary: #007bff;
+  --linka-secondary: #6c757d;
+  --linka-success: #28a745;
+  --linka-danger: #dc3545;
+  --linka-warning: #ffc107;
+  --linka-info: #17a2b8;
+  --linka-light: #f8f9fa;
+  --linka-dark: #343a40;
+}
+
+.linka-typography {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+}
+
+.linka-typography--bold {
+  font-weight: 700;
+}
+
+.linka-utility {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.linka-utility--m {
+  margin: 1rem;
+}
+
+.linka-utility--p {
+  padding: 0.5rem;
+}

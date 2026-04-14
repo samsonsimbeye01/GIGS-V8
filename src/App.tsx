@@ -1,56 +1,41 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/components/theme-provider";
-import { LocationProvider } from "@/contexts/LocationContext";
-import PolicyCompliantMainApp from "./components/PolicyCompliantMainApp";
-import Profile from "./pages/Profile";
-import Messages from "./pages/Messages";
-import Notifications from "./pages/Notifications";
-import Settings from "./pages/Settings";
-import Legal from "./pages/Legal";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import './App.css';
 
-const queryClient = new QueryClient();
-
-const App = () => {
+const App: React.FC = () => {
   return (
-    <ThemeProvider defaultTheme="light">
-      <LocationProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">
               <Routes>
-                <Route path="/" element={<PolicyCompliantMainApp />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/legal" element={<Legal />} />
-                <Route path="*" element={
-                  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
-                    <div className="text-center">
-                      <h1 className="text-4xl font-bold text-primary mb-4">Linka</h1>
-                      <p className="text-xl text-muted-foreground mb-4">Google Play Policy Compliant Gig Platform for Africa</p>
-                      <p className="text-lg font-semibold text-secondary">Page Not Found</p>
-                      <Button 
-                        onClick={() => window.location.href = '/'}
-                        className="mt-4"
-                      >
-                        Return to Linka
-                      </Button>
-                    </div>
-                  </div>
-                } />
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </LocationProvider>
+            </main>
+          </div>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 };
