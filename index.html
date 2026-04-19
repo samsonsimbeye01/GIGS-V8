@@ -1,13 +1,941 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/placeholder.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GigApp Enterprise</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--brand:#1E2A78;--brand2:#16207a;--brand-light:#eef0fc;--brand-mid:#c7ccf0;
+--teal:#00C2A8;--teal-light:#e0f7f5;--teal-dark:#085041;
+--amber:#F5A623;--amber-light:#fff3e0;--amber-dark:#633806;
+--red:#e53935;--red-light:#FCEBEB;--green:#3B6D11;--green-light:#EAF3DE;
+--bg:var(--color-background-primary);--bg2:var(--color-background-secondary);--bg3:var(--color-background-tertiary);
+--tx:var(--color-text-primary);--tx2:var(--color-text-secondary);--tx3:var(--color-text-tertiary);
+--bdr:var(--color-border-tertiary);--bdr2:var(--color-border-secondary);
+--r:var(--border-radius-md);--rl:var(--border-radius-lg);--rxl:var(--border-radius-xl)
+}
+body{font-family:var(--font-sans);background:var(--bg3);color:var(--tx);height:720px;overflow:hidden}
+.shell{display:flex;height:720px;width:100%;max-width:960px;margin:0 auto;background:var(--bg3);border:0.5px solid var(--bdr);border-radius:var(--rxl);overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:210px;background:var(--bg);border-right:0.5px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0}
+.logo-area{padding:16px;border-bottom:0.5px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.logo-box{width:30px;height:30px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:500;flex-shrink:0}
+.logo-text{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:var(--tx3)}
+nav{flex:1;padding:6px;overflow-y:auto}
+.nav-label{font-size:10px;color:var(--tx3);letter-spacing:.08em;padding:10px 8px 3px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--tx2);transition:all .12s;border:none;background:none;width:100%;text-align:left;position:relative}
+.ni:hover{background:var(--bg2);color:var(--tx)}
+.ni.active{background:var(--brand-light);color:var(--brand);font-weight:500}
+.ni-ico{width:15px;height:15px;flex-shrink:0;text-align:center;font-size:13px}
+.ni-badge{margin-left:auto;background:var(--brand);color:#fff;font-size:9px;padding:1px 5px;border-radius:99px}
+.ni-badge.a{background:var(--amber)}
+.user-strip{padding:10px;border-top:0.5px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.ava{border-radius:50%;background:var(--brand);color:#fff;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.ava-sm{width:30px;height:30px}
+.ava-md{width:36px;height:36px;font-size:13px}
+.ava-lg{width:56px;height:56px;font-size:18px}
+.user-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-sub{font-size:10px;color:var(--tx3)}
+.tier-pill{font-size:9px;background:var(--brand-light);color:var(--brand);padding:1px 6px;border-radius:99px;font-weight:500;margin-left:auto}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:48px;background:var(--bg);border-bottom:0.5px solid var(--bdr);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:500;flex:1}
+.live-indicator{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--teal-dark)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.search{height:28px;background:var(--bg2);border:0.5px solid var(--bdr);border-radius:var(--r);padding:0 10px;font-size:11px;color:var(--tx);outline:none;width:180px}
+.search::placeholder{color:var(--tx3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 12px;height:28px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;border:0.5px solid var(--bdr2);background:var(--bg);color:var(--tx)}
+.btn:hover{background:var(--bg2)}
+.btn-primary{background:var(--brand);color:#fff;border-color:transparent}
+.btn-primary:hover{background:var(--brand2)}
+.btn-teal{background:var(--teal);color:#fff;border-color:transparent}
+.btn-teal:hover{background:#00a891}
+.btn-amber{background:var(--amber);color:#fff;border-color:transparent}
+.btn-danger{background:var(--red);color:#fff;border-color:transparent}
+.btn-sm{height:24px;padding:0 9px;font-size:10px}
+.btn-lg{height:34px;padding:0 18px;font-size:12px}
+
+/* PAGE */
+.page{flex:1;overflow-y:auto;padding:16px;display:none}
+.page.active{display:block}
+
+/* UTILITIES */
+.row{display:flex;align-items:center;gap:8px}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.col{display:flex;flex-direction:column;gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.card{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);overflow:hidden;margin-bottom:10px}
+.card-header{padding:12px 14px;border-bottom:0.5px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.card-body{padding:12px 14px}
+.sec-title{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 8px}
+.sec-title:first-child{margin-top:0}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:500}
+.badge-brand{background:var(--brand-light);color:var(--brand)}
+.badge-teal{background:var(--teal-light);color:var(--teal-dark)}
+.badge-amber{background:var(--amber-light);color:var(--amber-dark)}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-gray{background:var(--bg2);color:var(--tx2)}
+.stat-card{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:12px}
+.stat-label{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.stat-val{font-size:19px;font-weight:500}
+.stat-trend{font-size:10px;margin-top:3px}
+.trend-up{color:var(--green)}.trend-flat{color:var(--tx3)}
+.gig-card{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .12s}
+.gig-card:hover{border-color:var(--bdr2)}
+.gig-card.boosted{border-color:var(--teal);border-width:1px}
+.gig-card.selected{border-color:var(--brand);border-width:1.5px;background:var(--brand-light)}
+.gig-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.gig-desc{font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:8px}
+.gig-budget{font-size:13px;font-weight:500;color:var(--brand)}
+.gig-meta{display:flex;gap:10px;font-size:10px;color:var(--tx3);flex-wrap:wrap}
+.progress-track{height:4px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .4s}
+.progress-fill.teal{background:var(--teal)}
+.progress-fill.amber{background:var(--amber)}
+.divider{height:0.5px;background:var(--bdr);margin:10px 0}
+.input{height:32px;background:var(--bg);border:0.5px solid var(--bdr2);border-radius:var(--r);padding:0 10px;font-size:12px;color:var(--tx);outline:none;width:100%}
+.input:focus{border-color:var(--brand)}
+.textarea{background:var(--bg);border:0.5px solid var(--bdr2);border-radius:var(--r);padding:8px 10px;font-size:12px;color:var(--tx);outline:none;width:100%;resize:none;font-family:inherit;line-height:1.5}
+.textarea:focus{border-color:var(--brand)}
+.toggle{width:32px;height:18px;border-radius:99px;background:var(--bg2);border:0.5px solid var(--bdr);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--brand);border-color:var(--brand)}
+.toggle-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .18s;box-shadow:0 0.5px 2px rgba(0,0,0,.2)}
+.toggle.on .toggle-thumb{left:16px}
+.match-bar{height:6px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-top:3px}
+.match-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand),var(--teal))}
+.msg-row{display:flex;align-items:center;gap:10px;padding:9px;border-radius:var(--r);cursor:pointer;transition:background .1s}
+.msg-row:hover{background:var(--bg2)}
+.online-ring{position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(--teal);border:2px solid var(--bg)}
+.notif-row{display:flex;gap:9px;padding:9px;border-radius:var(--r);border:0.5px solid var(--bdr);margin-bottom:5px;cursor:pointer}
+.notif-row.unread{background:var(--brand-light);border-color:var(--brand-mid)}
+.notif-ico{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.wallet-hero{background:var(--brand);color:#fff;border-radius:var(--rl);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.wallet-bal{font-size:28px;font-weight:500;margin:6px 0 3px}
+.sub-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sub-card{background:rgba(255,255,255,.1);border-radius:var(--r);padding:9px;border:0.5px solid rgba(255,255,255,.15)}
+.sub-card-label{font-size:9px;opacity:.7;text-transform:uppercase;letter-spacing:.07em}
+.sub-card-val{font-size:13px;font-weight:500;margin-top:1px}
+.tx-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:0.5px solid var(--bdr)}
+.tx-row:last-child{border-bottom:none}
+.tx-ico{width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ti{background:var(--green-light);color:var(--green)}
+.to{background:var(--brand-light);color:var(--brand)}
+.tx-amount.in{font-size:12px;font-weight:500;color:var(--green);white-space:nowrap}
+.tx-amount.out{font-size:12px;font-weight:500;color:var(--tx);white-space:nowrap}
+.hub-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--bdr);font-size:11px}
+.hub-row:last-child{border-bottom:none}
+.bar-chart{display:flex;align-items:end;height:64px;gap:4px;padding-bottom:16px;position:relative}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px}
+.bar-block{width:100%;border-radius:2px 2px 0 0;transition:opacity .2s}
+.bar-block:hover{opacity:.75}
+.bar-label{font-size:9px;color:var(--tx3);white-space:nowrap;position:absolute;bottom:0}
+.step-indicator{display:flex;align-items:center;gap:4px;margin-bottom:12px}
+.step{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--tx3);flex-shrink:0}
+.step.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.step.active-s{background:var(--brand);border-color:var(--brand);color:#fff}
+.step-line{flex:1;height:1px;background:var(--bdr)}
+.step-line.done{background:var(--teal)}
+.plan-card{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:12px;margin-bottom:8px}
+.plan-card.current{border-color:var(--brand);border-width:1.5px}
+.scrollable{overflow-y:auto}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--bg2);border:0.5px solid var(--bdr);border-radius:99px;padding:3px 9px;font-size:10px;color:var(--tx2);cursor:pointer;transition:all .12s;white-space:nowrap}
+.chip:hover,.chip.on{background:var(--brand-light);border-color:var(--brand-mid);color:var(--brand)}
+.stars{color:var(--amber);font-size:11px}
+.ai-score-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r);border:0.5px solid var(--bdr);background:var(--bg);margin-bottom:5px;cursor:pointer;transition:border-color .12s}
+.ai-score-row:hover{border-color:var(--bdr2)}
+.ai-tag{font-size:9px;background:var(--brand-light);color:var(--brand);padding:1px 5px;border-radius:99px}
+.verify-dots{display:flex;gap:3px;margin-top:5px}
+.vdot{width:20px;height:4px;border-radius:99px}
+.vdot.done{background:var(--teal)}.vdot.pend{background:var(--bg2)}
+.compliance-row{display:flex;align-items:start;gap:8px;padding:8px;border-radius:var(--r);background:var(--bg2);margin-bottom:6px;font-size:11px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:var(--bg);border-radius:var(--rxl);max-width:440px;width:100%;overflow:hidden;border:0.5px solid var(--bdr)}
+.modal-header{background:var(--brand);color:#fff;padding:16px 20px}
+.modal-body{padding:16px 20px;max-height:340px;overflow-y:auto}
+.modal-footer{padding:12px 20px;border-top:0.5px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end}
+.hidden{display:none}
+.status-badge-open{background:#EAF3DE;color:var(--green)}
+.status-badge-in_progress{background:var(--brand-light);color:var(--brand)}
+.status-badge-completed{background:var(--teal-light);color:var(--teal-dark)}
+.status-badge-disputed{background:var(--red-light);color:var(--red)}
+.status-badge-assigned{background:var(--amber-light);color:var(--amber-dark)}
+</style>
+
+<div class="shell">
+ <!-- SIDEBAR -->
+ <div class="sidebar">
+  <div class="logo-area">
+   <div class="logo-box">L</div>
+   <div><div class="logo-text">Linka</div><div class="logo-sub">GigApp Platform</div></div>
+  </div>
+  <nav>
+   <div class="nav-label">Marketplace</div>
+   <button class="ni active" onclick="go('home')"><span class="ni-ico">⌂</span>Home</button>
+   <button class="ni" onclick="go('explore')"><span class="ni-ico">⊕</span>Explore<span class="ni-badge">8</span></button>
+   <button class="ni" onclick="go('gigs')"><span class="ni-ico">⚡</span>Gigs</button>
+   <button class="ni" onclick="go('ai')"><span class="ni-ico">◈</span>AI Match<span class="ni-badge">92%</span></button>
+   <button class="ni" onclick="go('mnada')"><span class="ni-ico">⚒</span>Mnada<span class="ni-badge a">2</span></button>
+   <button class="ni" onclick="go('opportunities')"><span class="ni-ico">◎</span>Opportunities</button>
+   <div class="nav-label">Account</div>
+   <button class="ni" onclick="go('messages')"><span class="ni-ico">✉</span>Messages<span class="ni-badge">3</span></button>
+   <button class="ni" onclick="go('notifications')"><span class="ni-ico">◓</span>Alerts<span class="ni-badge">4</span></button>
+   <button class="ni" onclick="go('wallet')"><span class="ni-ico">◉</span>Wallet</button>
+   <button class="ni" onclick="go('profile')"><span class="ni-ico">◎</span>Profile</button>
+   <button class="ni" onclick="go('compliance')"><span class="ni-ico">✓</span>Compliance</button>
+   <button class="ni" onclick="go('settings')"><span class="ni-ico">⚙</span>Settings</button>
+   <div class="nav-label">Admin</div>
+   <button class="ni" onclick="go('admin')"><span class="ni-ico">▤</span>Dashboard</button>
+  </nav>
+  <div class="user-strip">
+   <div class="ava ava-sm">AM</div>
+   <div style="min-width:0"><div class="user-name">Amina Mwangi</div><div class="user-sub">Verified · TZ</div></div>
+   <span class="tier-pill">Pro</span>
+  </div>
+ </div>
+
+ <!-- MAIN -->
+ <div class="main">
+  <div class="topbar">
+   <div class="topbar-title" id="page-title">Home</div>
+   <div class="live-indicator"><div class="live-dot"></div>Live</div>
+   <input class="search" placeholder="Search gigs, people..." oninput="liveSearch(this.value)" />
+   <button class="btn btn-primary btn-sm" onclick="openPostGig()">+ Post Gig</button>
+  </div>
+
+  <!-- ═══ HOME ═══ -->
+  <div class="page active" id="pg-home">
+   <!-- Banner cards -->
+   <div class="grid2" style="margin-bottom:12px">
+    <div style="background:var(--brand);color:#fff;border-radius:var(--rl);padding:14px;cursor:pointer;position:relative;overflow:hidden" onclick="go('mnada')">
+     <div style="font-size:9px;opacity:.6;letter-spacing:.1em;text-transform:uppercase">Live Auction</div>
+     <div style="font-size:15px;font-weight:500;margin:3px 0 4px">Real-time Service Bidding</div>
+     <div style="font-size:10px;opacity:.8;margin-bottom:8px">12 active auctions nearby</div>
+     <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2)">Enter Mnada →</button>
+     <div style="position:absolute;right:-12px;top:-12px;font-size:50px;opacity:.07">⚒</div>
+    </div>
+    <div style="background:var(--teal);color:#fff;border-radius:var(--rl);padding:14px;cursor:pointer;position:relative;overflow:hidden" onclick="go('opportunities')">
+     <div style="font-size:9px;opacity:.6;letter-spacing:.1em;text-transform:uppercase">Opportunities Hub</div>
+     <div style="font-size:15px;font-weight:500;margin:3px 0 4px">Jobs, Tenders & Grants</div>
+     <div style="font-size:10px;opacity:.8;margin-bottom:8px">Aggregated across Africa</div>
+     <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2)">Browse Hub →</button>
+     <div style="position:absolute;right:-12px;top:-12px;font-size:50px;opacity:.07">◎</div>
+    </div>
+   </div>
+   <!-- Stats -->
+   <div class="grid4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-label">GMV</div><div class="stat-val">8.4M</div><div class="stat-trend trend-up">▲ +12.4% TSH</div></div>
+    <div class="stat-card"><div class="stat-label">Take Rate</div><div class="stat-val">9.2%</div><div class="stat-trend trend-flat">Stable</div></div>
+    <div class="stat-card"><div class="stat-label">Retention</div><div class="stat-val">88%</div><div class="stat-trend trend-up">▲ Repeat</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="go('wallet')"><div class="stat-label">Escrow</div><div class="stat-val">265K</div><div class="stat-trend"><span class="badge badge-teal" style="font-size:9px">✓ Secure</span></div></div>
+   </div>
+   <!-- AI Match Highlight -->
+   <div style="background:var(--brand-light);border:1px solid var(--brand-mid);border-radius:var(--rl);padding:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="go('ai')">
+    <div>
+     <div style="font-size:11px;font-weight:500;color:var(--brand)">◈ AI Smart Match — 3 top gigs found for you</div>
+     <div style="font-size:10px;color:var(--tx3);margin-top:2px">Based on skills, proximity (Dar), rating 4.8 · 98% completion</div>
+    </div>
+    <button class="btn btn-primary btn-sm">View Matches</button>
+   </div>
+   <!-- Categories -->
+   <div class="sec-title">Trending categories</div>
+   <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+    <span class="chip on">Cleaning</span><span class="chip">Delivery</span><span class="chip">Tech</span><span class="chip">Writing</span><span class="chip">🔥 Design</span>
+   </div>
+   <!-- Premium gigs -->
+   <div class="sec-title">Premium gigs</div>
+   <div class="gig-card boosted">
+    <div class="row-between" style="margin-bottom:4px">
+     <div class="row"><span class="gig-title">Senior React Native Dev</span><span class="badge badge-teal" style="font-size:9px;margin-left:4px">Boosted</span></div>
+     <span class="gig-budget">4,500,000 TZS</span>
+    </div>
+    <div class="gig-desc">Lead mobile infrastructure team. Remote (Tanzania). 5+ yrs React Native required.</div>
+    <div class="row-between"><div class="gig-meta"><span>📍 Remote</span><span>👥 24 applied</span><span>✓ Policy OK</span></div><button class="btn btn-primary btn-sm" onclick="openApply('Senior React Native Dev',4500000)">Apply</button></div>
+   </div>
+   <div class="gig-card">
+    <div class="row-between" style="margin-bottom:4px"><span class="gig-title">House Cleaning – Upanga</span><span class="gig-budget">50,000 TZS</span></div>
+    <div class="gig-desc">3-bedroom, floor mopping + window cleaning. Tools provided.</div>
+    <div class="row-between"><div class="gig-meta"><span>📍 Dar es Salaam</span><span>👥 8 applied</span></div><button class="btn btn-primary btn-sm" onclick="openApply('House Cleaning – Upanga',50000)">Apply</button></div>
+   </div>
+   <div class="gig-card">
+    <div class="row-between" style="margin-bottom:4px"><span class="gig-title">Document Delivery – Posta→Kariakoo</span><span class="gig-budget">15,000 TZS</span></div>
+    <div class="gig-desc">Legal documents. Must complete by 4 PM. Boda-boda preferred.</div>
+    <div class="row-between"><div class="gig-meta"><span>📍 Posta</span></div><button class="btn btn-primary btn-sm" onclick="openApply('Document Delivery',15000)">Apply</button></div>
+   </div>
+  </div>
+
+  <!-- ═══ EXPLORE ═══ -->
+  <div class="page" id="pg-explore">
+   <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px" id="cat-chips">
+    <span class="chip on" onclick="filterCat(this,'all')">All (8)</span>
+    <span class="chip" onclick="filterCat(this,'cleaning')">Cleaning</span>
+    <span class="chip" onclick="filterCat(this,'delivery')">Delivery</span>
+    <span class="chip" onclick="filterCat(this,'tech')">Tech</span>
+    <span class="chip" onclick="filterCat(this,'design')">Design</span>
+   </div>
+   <div id="explore-list">
+    <div class="gig-card boosted" data-cat="cleaning">
+     <div class="row-between" style="margin-bottom:5px"><div class="row"><span class="badge badge-brand">Cleaning</span><span class="badge badge-amber" style="margin-left:4px">🔥 High Demand</span></div><span class="gig-budget">45,000 TZS</span></div>
+     <div class="gig-title">Office Deep Clean – CBD</div>
+     <div class="gig-desc">3 floors, Monday 8 AM. Supplies included.</div>
+     <div class="row-between"><div class="gig-meta"><span>📍 Dar CBD</span><span>👁 87</span><span>👥 14</span><span>✓ Compliant</span></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Office Deep Clean',45000)">Apply</button></div></div>
+    </div>
+    <div class="gig-card boosted" data-cat="delivery">
+     <div class="row-between" style="margin-bottom:5px"><span class="badge badge-gray">Delivery</span><span class="gig-budget">25,000 TZS</span></div>
+     <div class="gig-title">Same-Day Parcel × 5 Routes</div>
+     <div class="gig-desc">Multiple stops. E-bike preferred. 9 AM–5 PM.</div>
+     <div class="row-between"><div class="gig-meta"><span>📍 Arusha</span><span>👥 6</span></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Parcel Delivery',25000)">Apply</button></div></div>
+    </div>
+    <div class="gig-card" data-cat="tech">
+     <div class="row-between" style="margin-bottom:5px"><span class="badge badge-gray">Tech</span><span class="gig-budget">120,000 TZS</span></div>
+     <div class="gig-title">WordPress Site – NGO</div>
+     <div class="gig-desc">5-page site + donations plugin. 2-week deadline.</div>
+     <div class="row-between"><div class="gig-meta"><span>📍 Remote</span></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('WordPress Site',120000)">Apply</button></div></div>
+    </div>
+    <div class="gig-card" data-cat="design">
+     <div class="row-between" style="margin-bottom:5px"><span class="badge badge-brand">Design</span><span class="gig-budget">80,000 TZS</span></div>
+     <div class="gig-title">Logo + Brand Kit – Startup</div>
+     <div class="gig-desc">Full identity package. 3 revision rounds. Figma source files.</div>
+     <div class="row-between"><div class="gig-meta"><span>📍 Remote</span><span>👥 9</span></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Brand Kit',80000)">Apply</button></div></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ═══ GIGS (Lifecycle) ═══ -->
+  <div class="page" id="pg-gigs">
+   <div class="sec-title">My active gigs — lifecycle tracker</div>
+   <div id="gig-lifecycle">
+    <div class="gig-card" onclick="openGigDetail('g1')">
+     <div class="row-between" style="margin-bottom:5px">
+      <span class="gig-title">Office Deep Clean – CBD</span>
+      <span class="badge status-badge-in_progress">In Progress</span>
+     </div>
+     <div class="step-indicator" style="margin:8px 0">
+      <div class="step done">1</div><div class="step-line done"></div>
+      <div class="step done">2</div><div class="step-line done"></div>
+      <div class="step active-s">3</div><div class="step-line"></div>
+      <div class="step">4</div><div class="step-line"></div>
+      <div class="step">5</div>
+     </div>
+     <div style="font-size:10px;color:var(--tx3);margin-bottom:8px">Step 3 of 5: Job in progress · 45,000 TZS in escrow</div>
+     <div class="row-between"><div class="gig-meta"><span>👤 Worker: John Doe</span><span>★ 4.8</span></div><button class="btn btn-teal btn-sm" onclick="event.stopPropagation();confirmComplete('g1')">Confirm Complete</button></div>
+    </div>
+    <div class="gig-card" onclick="openGigDetail('g2')">
+     <div class="row-between" style="margin-bottom:5px">
+      <span class="gig-title">Document Delivery</span>
+      <span class="badge status-badge-assigned">Assigned</span>
+     </div>
+     <div class="step-indicator" style="margin:8px 0">
+      <div class="step done">1</div><div class="step-line done"></div>
+      <div class="step done">2</div><div class="step-line"></div>
+      <div class="step">3</div><div class="step-line"></div>
+      <div class="step">4</div><div class="step-line"></div>
+      <div class="step">5</div>
+     </div>
+     <div style="font-size:10px;color:var(--tx3);margin-bottom:8px">Step 2 of 5: Worker assigned · Awaiting start</div>
+     <div class="row-between"><div class="gig-meta"><span>👤 Worker: Mary Njoki</span></div><button class="btn btn-primary btn-sm" onclick="event.stopPropagation();lockJob('g2')">Lock &amp; Start</button></div>
+    </div>
+    <div class="gig-card">
+     <div class="row-between" style="margin-bottom:5px">
+      <span class="gig-title">Gardening Services – Masaki</span>
+      <span class="badge status-badge-open">Open</span>
+     </div>
+     <div style="font-size:10px;color:var(--tx3);margin-bottom:8px">Posted 2h ago · 3 applications pending</div>
+     <div class="row-between"><div class="gig-meta"><span>35,000 TZS</span><span>📍 Masaki</span></div><button class="btn btn-sm">View Applications</button></div>
+    </div>
+   </div>
+   <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="openPostGig()">+ Post a New Gig</button>
+  </div>
+
+  <!-- ═══ AI MATCH ═══ -->
+  <div class="page" id="pg-ai">
+   <div style="background:var(--brand-light);border:1px solid var(--brand-mid);border-radius:var(--rl);padding:14px;margin-bottom:12px">
+    <div style="font-size:12px;font-weight:500;color:var(--brand);margin-bottom:2px">◈ AI Matching Engine</div>
+    <div style="font-size:10px;color:var(--tx2)">Multi-factor scoring: skill match (40%) · rating (15%) · completion rate (15%) · verification (10%) · proximity (20%)</div>
+   </div>
+   <div class="sec-title">Your profile vector</div>
+   <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+    <span class="chip on">Cleaning</span><span class="chip on">Delivery</span><span class="chip on">Customer Service</span><span class="chip on">Photography</span><span class="chip on">Data Entry</span>
+    <span class="chip" style="border-style:dashed">+ Add skill</span>
+   </div>
+   <div class="grid2" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-label">Your Rating</div><div class="stat-val">4.8 ★</div></div>
+    <div class="stat-card"><div class="stat-label">Completion Rate</div><div class="stat-val">98%</div></div>
+    <div class="stat-card"><div class="stat-label">Verification</div><div class="stat-val">Level 3</div></div>
+    <div class="stat-card"><div class="stat-label">Location</div><div class="stat-val" style="font-size:13px">Dar es Salaam</div></div>
+   </div>
+   <div class="sec-title">Top matches for you</div>
+   <div class="ai-score-row" onclick="openApply('Office Deep Clean – CBD',45000)">
+    <div style="flex:1;min-width:0">
+     <div class="row" style="margin-bottom:2px"><span style="font-size:12px;font-weight:500">Office Deep Clean – CBD</span><span class="ai-tag" style="margin-left:6px">92% match</span></div>
+     <div style="font-size:10px;color:var(--tx3)">Matched 3 skills · 0.8 km away · High demand</div>
+     <div class="match-bar"><div class="match-fill" style="width:92%"></div></div>
+    </div>
+    <span style="font-size:12px;font-weight:500;color:var(--brand);margin-left:10px;white-space:nowrap">45,000 TZS</span>
+   </div>
+   <div class="ai-score-row" onclick="openApply('House Cleaning – Upanga',50000)">
+    <div style="flex:1;min-width:0">
+     <div class="row" style="margin-bottom:2px"><span style="font-size:12px;font-weight:500">House Cleaning – Upanga</span><span class="ai-tag" style="margin-left:6px">85% match</span></div>
+     <div style="font-size:10px;color:var(--tx3)">Perfect skill match · Verified profile bonus · 1.2 km</div>
+     <div class="match-bar"><div class="match-fill" style="width:85%"></div></div>
+    </div>
+    <span style="font-size:12px;font-weight:500;color:var(--brand);margin-left:10px;white-space:nowrap">50,000 TZS</span>
+   </div>
+   <div class="ai-score-row" onclick="openApply('Grocery Delivery',18000)">
+    <div style="flex:1;min-width:0">
+     <div class="row" style="margin-bottom:2px"><span style="font-size:12px;font-weight:500">Grocery Delivery – Kariakoo</span><span class="ai-tag" style="margin-left:6px">78% match</span></div>
+     <div style="font-size:10px;color:var(--tx3)">Delivery skill match · Excellent completion rate</div>
+     <div class="match-bar"><div class="match-fill" style="width:78%"></div></div>
+    </div>
+    <span style="font-size:12px;font-weight:500;color:var(--brand);margin-left:10px;white-space:nowrap">18,000 TZS</span>
+   </div>
+   <div style="margin-top:12px;padding:10px;background:var(--amber-light);border-radius:var(--r);font-size:10px;color:var(--amber-dark)">
+    💡 <strong>Tip:</strong> Add Government ID (Level 4) to boost your match priority by ~15% and unlock lower escrow fees.
+   </div>
+  </div>
+
+  <!-- ═══ MNADA ═══ -->
+  <div class="page" id="pg-mnada">
+   <div class="row-between" style="margin-bottom:12px">
+    <div><div style="font-size:15px;font-weight:500">⚒ Mnada Live</div><div style="font-size:10px;color:var(--tx3)">Real-time service auction · Sniping protection active</div></div>
+    <div class="row"><span class="badge badge-teal">👥 8 Bidders</span><span class="badge badge-amber">🔥 2 Live</span></div>
+   </div>
+   <div class="grid2">
+    <div>
+     <div class="sec-title">Live auctions</div>
+     <div class="gig-card selected" id="acard-1" onclick="selectAuction(1,this)">
+      <div class="row-between" style="margin-bottom:5px"><span class="badge badge-brand">Design</span><span id="at1" style="font-size:10px;font-weight:500;color:var(--amber-dark);background:var(--amber-light);padding:2px 7px;border-radius:99px">⏱ --</span></div>
+      <div style="font-size:12px;font-weight:500;margin-bottom:3px">Premium Web Design Package</div>
+      <div class="row-between" style="font-size:11px"><span style="color:var(--tx3)">Current bid</span><span style="font-weight:500;color:var(--brand)" id="ab1">285,000 TZS</span></div>
+      <div class="row-between" style="font-size:10px;color:var(--tx3);margin-top:2px"><span>12 bids</span><span>5 bidders</span></div>
+     </div>
+     <div class="gig-card" id="acard-2" onclick="selectAuction(2,this)">
+      <div class="row-between" style="margin-bottom:5px"><span class="badge badge-gray">Marketing</span><span id="at2" style="font-size:10px;font-weight:500;color:var(--amber-dark);background:var(--amber-light);padding:2px 7px;border-radius:99px">⏱ --</span></div>
+      <div style="font-size:12px;font-weight:500;margin-bottom:3px">Content Strategy for Startups</div>
+      <div class="row-between" style="font-size:11px"><span style="color:var(--tx3)">Current bid</span><span style="font-weight:500;color:var(--brand)" id="ab2">120,000 TZS</span></div>
+      <div class="row-between" style="font-size:10px;color:var(--tx3);margin-top:2px"><span>8 bids</span><span>3 bidders</span></div>
+     </div>
+    </div>
+    <div>
+     <div class="sec-title">Active bid panel</div>
+     <div style="background:var(--bg2);border-radius:var(--rl);padding:12px">
+      <div style="font-size:10px;color:var(--tx3)">Current highest bid</div>
+      <div style="font-size:24px;font-weight:500;color:var(--brand);margin:3px 0" id="bid-display">285,000 TZS</div>
+      <div class="progress-track" style="margin-bottom:3px"><div class="progress-fill" id="bid-progress" style="width:81%"></div></div>
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:10px">Reserve: 350,000 TZS · <span id="reserve-status">Not yet met</span></div>
+      <div class="row" style="margin-bottom:6px">
+       <input class="input" type="number" id="bid-input" placeholder="Min: current + 5,000" style="flex:1" />
+       <button class="btn btn-primary" onclick="placeBid()">Bid Now</button>
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+       <button class="btn btn-sm" onclick="quickBid(10000)">+10k</button>
+       <button class="btn btn-sm" onclick="quickBid(25000)">+25k</button>
+       <button class="btn btn-sm" onclick="quickBid(50000)">+50k</button>
+      </div>
+      <button class="btn btn-sm" style="width:100%;border-style:dashed;color:var(--brand)" id="buynow-btn" onclick="buyNow()">Buy It Now – 500,000 TZS</button>
+      <div style="margin-top:8px;padding:8px;background:var(--amber-light);border-radius:var(--r);font-size:10px;color:var(--amber-dark)">⚠ Sniping protection: bids in last 2 min extend auction by 2 min.</div>
+     </div>
+     <div class="sec-title" style="margin-top:10px">Bid history</div>
+     <div id="bid-hist" style="max-height:140px;overflow-y:auto">
+      <div class="row-between" style="padding:5px 0;border-bottom:0.5px solid var(--bdr);font-size:11px">
+       <div class="row"><div class="ava ava-sm" style="width:22px;height:22px;background:var(--amber);font-size:9px">A</div><span style="font-weight:500">AlphaDev</span><span class="badge badge-amber" style="font-size:9px">Highest</span></div>
+       <span style="font-weight:500;color:var(--brand)">285,000</span>
+      </div>
+      <div class="row-between" style="padding:5px 0;border-bottom:0.5px solid var(--bdr);font-size:11px">
+       <div class="row"><div class="ava ava-sm" style="width:22px;height:22px;font-size:9px">C</div><span>CreativePro</span></div>
+       <span style="color:var(--tx2)">270,000</span>
+      </div>
+      <div class="row-between" style="padding:5px 0;font-size:11px">
+       <div class="row"><div class="ava ava-sm" style="width:22px;height:22px;font-size:9px">A</div><span>AlphaDev</span></div>
+       <span style="color:var(--tx2)">250,000</span>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ═══ OPPORTUNITIES ═══ -->
+  <div class="page" id="pg-opportunities">
+   <div style="background:var(--brand);color:#fff;border-radius:var(--rl);padding:14px;margin-bottom:12px;position:relative;overflow:hidden">
+    <div style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.1em">Opportunities Engine</div>
+    <div style="font-size:16px;font-weight:500;margin:2px 0 3px">Jobs, Tenders, Grants & Contracts</div>
+    <div style="font-size:10px;opacity:.8">Aggregated high-value opportunities across Africa.</div>
+    <div style="position:absolute;right:-15px;top:-15px;font-size:60px;opacity:.05">◎</div>
+   </div>
+   <div style="display:flex;gap:5px;margin-bottom:10px" id="opp-tabs">
+    <span class="chip on" onclick="filterOpp(this,'job')">Jobs</span>
+    <span class="chip" onclick="filterOpp(this,'tender')">Tenders</span>
+    <span class="chip" onclick="filterOpp(this,'grant')">Grants</span>
+    <span class="chip" onclick="filterOpp(this,'contract')">Contracts</span>
+   </div>
+   <div id="opp-list">
+    <div class="gig-card" data-otype="job">
+     <div class="row-between" style="margin-bottom:5px"><div class="row"><span class="badge badge-brand">Software Engineering</span><span class="badge badge-teal" style="margin-left:4px">✓ Verified</span></div><span style="font-size:10px;color:var(--tx3)">Deadline: Mar 30</span></div>
+     <div class="gig-title">Senior React Native Developer</div>
+     <div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🏢 TechCorp Africa · Remote (TZ)</div>
+     <div class="gig-desc">5+ yrs React Native, TypeScript. Lead mobile infrastructure team.</div>
+     <div class="row-between"><div><div style="font-size:9px;color:var(--tx3)">Monthly budget</div><div class="gig-budget">4,500,000 TZS</div></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Senior React Native Dev',4500000)">Apply</button></div></div>
+    </div>
+    <div class="gig-card" data-otype="tender">
+     <div class="row-between" style="margin-bottom:5px"><div class="row"><span class="badge badge-gray">Logistics</span><span class="badge badge-teal" style="margin-left:4px">✓ Verified</span></div><span style="font-size:10px;color:var(--tx3)">Deadline: Apr 15</span></div>
+     <div class="gig-title">Dar es Salaam Port Logistics Tender</div>
+     <div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🏢 Port Authority · Dar es Salaam</div>
+     <div class="gig-desc">Supply and maintenance of container tracking hardware. Valid business license required.</div>
+     <div class="row-between"><div><div style="font-size:9px;color:var(--tx3)">Contract value</div><div class="gig-budget">150,000,000 TZS</div></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Port Logistics Tender',150000000)">Apply</button></div></div>
+    </div>
+    <div class="gig-card" data-otype="grant">
+     <div class="row-between" style="margin-bottom:5px"><div class="row"><span class="badge badge-green">Grant</span><span class="badge badge-teal" style="margin-left:4px">✓ Verified</span></div><span style="font-size:10px;color:var(--tx3)">Deadline: May 1</span></div>
+     <div class="gig-title">Green Tech Innovation Grant</div>
+     <div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🌍 EcoFoundation · Pan-African</div>
+     <div class="gig-desc">Funding for renewable energy startups in sub-Saharan Africa. Impact report required.</div>
+     <div class="row-between"><div><div style="font-size:9px;color:var(--tx3)">Grant value</div><div class="gig-budget">25,000,000 TZS</div></div><div class="row"><button class="btn btn-sm">Details</button><button class="btn btn-primary btn-sm" onclick="openApply('Green Tech Grant',25000000)">Apply</button></div></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ═══ MESSAGES ═══ -->
+  <div class="page" id="pg-messages">
+   <input class="input" style="margin-bottom:10px" placeholder="Search conversations..." />
+   <div id="msg-list">
+    <div class="msg-row"><div class="ava ava-md" style="background:#3B6D11;position:relative">SM<div class="online-ring"></div></div><div style="flex:1;min-width:0"><div class="row-between"><span style="font-size:12px;font-weight:500">Sarah Mwangi</span><span style="font-size:10px;color:var(--tx3)">2m</span></div><div class="row-between"><span style="font-size:11px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">When can you start the cleaning job?</span><span style="background:var(--brand);color:#fff;font-size:9px;padding:1px 5px;border-radius:99px;flex-shrink:0">2</span></div></div></div>
+    <div class="msg-row"><div class="ava ava-md" style="background:#854F0B">JK</div><div style="flex:1;min-width:0"><div class="row-between"><span style="font-size:12px;font-weight:500">James Kiprotich</span><span style="font-size:10px;color:var(--tx3)">1h</span></div><div style="font-size:11px;color:var(--tx2)">Payment has been released ✓</div></div></div>
+    <div class="msg-row"><div class="ava ava-md" style="background:#3C3489;position:relative">FH<div class="online-ring"></div></div><div style="flex:1;min-width:0"><div class="row-between"><span style="font-size:12px;font-weight:500">Fatuma Hassan</span><span style="font-size:10px;color:var(--tx3)">3h</span></div><div class="row-between"><span style="font-size:11px;color:var(--tx2);flex:1">Thank you for the excellent work!</span><span style="background:var(--brand);color:#fff;font-size:9px;padding:1px 5px;border-radius:99px">1</span></div></div></div>
+    <div class="msg-row"><div class="ava ava-md" style="background:#533A78">MO</div><div style="flex:1;min-width:0"><div class="row-between"><span style="font-size:12px;font-weight:500">Mohammed Osman</span><span style="font-size:10px;color:var(--tx3)">1d</span></div><div style="font-size:11px;color:var(--tx2)">Can you do the delivery tomorrow?</div></div></div>
+   </div>
+  </div>
+
+  <!-- ═══ NOTIFICATIONS ═══ -->
+  <div class="page" id="pg-notifications">
+   <div class="row-between" style="margin-bottom:10px"><span style="font-size:13px;font-weight:500">Notifications</span><button class="btn btn-sm" onclick="markAllRead()">Mark all read</button></div>
+   <div id="notif-list">
+    <div class="notif-row unread" id="n1" onclick="readNotif('n1')"><div class="notif-ico" style="background:var(--brand-light)">📍</div><div><div style="font-size:12px;font-weight:500">New Gig Available</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">House cleaning in Msimbazi – 35,000 TSH</div><div style="font-size:9px;color:var(--tx3);margin-top:2px">5 min ago</div></div></div>
+    <div class="notif-row unread" id="n2" onclick="readNotif('n2')"><div class="notif-ico" style="background:var(--green-light)">💰</div><div><div style="font-size:12px;font-weight:500">Payment Received</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">25,000 TSH from John Doe via escrow release</div><div style="font-size:9px;color:var(--tx3);margin-top:2px">1 hour ago</div></div></div>
+    <div class="notif-row" id="n3"><div class="notif-ico" style="background:var(--brand-light)">⚒</div><div><div style="font-size:12px;font-weight:500">Mnada Auction Ending Soon</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">Web Design Package – 15 min remaining</div><div style="font-size:9px;color:var(--tx3);margin-top:2px">2 hours ago</div></div></div>
+    <div class="notif-row" id="n4"><div class="notif-ico" style="background:var(--amber-light)">✓</div><div><div style="font-size:12px;font-weight:500">Gig Completed</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">Office cleaning job — payment released from escrow</div><div style="font-size:9px;color:var(--tx3);margin-top:2px">1 day ago</div></div></div>
+   </div>
+  </div>
+
+  <!-- ═══ WALLET ═══ -->
+  <div class="page" id="pg-wallet">
+   <div class="wallet-hero">
+    <div style="font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.1em">Net Liquidity Balance</div>
+    <div class="wallet-bal">142,500 TZS</div>
+    <div style="font-size:10px;opacity:.7">Commission paid this month: 45,200 TZS (10%) · Stripe fees: 8,400 TZS</div>
+    <div class="sub-cards">
+     <div class="sub-card"><div class="sub-card-label">In Escrow (Locked)</div><div class="sub-card-val">265,000 TZS</div></div>
+     <div class="sub-card"><div class="sub-card-label">Pending Release</div><div class="sub-card-val">35,000 TZS</div></div>
+    </div>
+    <div style="display:flex;gap:7px;margin-top:12px">
+     <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2)">↑ Withdraw to M-Pesa</button>
+     <button class="btn btn-sm" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">⇄ Transfer</button>
+    </div>
+    <div style="position:absolute;right:16px;top:16px;opacity:.06;font-size:52px">◉</div>
+   </div>
+   <div class="sec-title">Active escrow protection</div>
+   <div class="grid2" style="margin-bottom:12px">
+    <div style="background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:12px;cursor:pointer">
+     <span class="badge badge-teal" style="margin-bottom:5px">In Escrow</span>
+     <div style="font-size:12px;font-weight:500">Web Development Project</div>
+     <div style="font-size:10px;color:var(--tx3);margin:2px 0 7px">Release: Mar 1, 2026</div>
+     <div style="font-size:16px;font-weight:500;color:var(--brand)">250,000 TZS</div>
+     <div style="font-size:10px;color:var(--tx3)">Platform fee: 25,000 TZS</div>
+    </div>
+    <div style="background:var(--amber-light);border:0.5px solid #FAC775;border-radius:var(--rl);padding:12px;cursor:pointer">
+     <span class="badge badge-amber" style="margin-bottom:5px">⚠ Disputed</span>
+     <div style="font-size:12px;font-weight:500">Furniture Assembly</div>
+     <div style="font-size:10px;color:var(--tx3);margin:2px 0 7px">Funds frozen · AI review active</div>
+     <div style="font-size:16px;font-weight:500;color:var(--amber-dark)">15,000 TZS</div>
+     <div style="font-size:10px;color:var(--amber-dark)">Resolution within 4h</div>
+    </div>
+   </div>
+   <div class="sec-title">Transaction ledger</div>
+   <div class="card">
+    <div class="card-body" style="padding:0">
+     <div class="tx-row" style="padding:10px 14px"><div class="tx-ico ti">↙</div><div style="flex:1"><div style="font-size:12px;font-weight:500">Payment: Office Cleaning</div><div style="font-size:10px;color:var(--tx3)">Today · TXN-9021 · Verified via Stripe</div></div><span class="tx-amount in">+40,500 TZS</span></div>
+     <div class="tx-row" style="padding:10px 14px"><div class="tx-ico to">↗</div><div style="flex:1"><div style="font-size:12px;font-weight:500">Withdrawal to M-Pesa</div><div style="font-size:10px;color:var(--tx3)">Yesterday · TXN-8842 · Pending</div></div><span class="tx-amount out">-20,500 TZS</span></div>
+     <div class="tx-row" style="padding:10px 14px;border-bottom:none"><div class="tx-ico ti">↙</div><div style="flex:1"><div style="font-size:12px;font-weight:500">Payment: Grocery Delivery</div><div style="font-size:10px;color:var(--tx3)">2 days ago · TXN-7731 · Verified</div></div><span class="tx-amount in">+13,500 TZS</span></div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ═══ PROFILE ═══ -->
+  <div class="page" id="pg-profile">
+   <div style="text-align:center;padding-bottom:14px;border-bottom:0.5px solid var(--bdr);margin-bottom:14px">
+    <div class="ava ava-lg" style="margin:0 auto 10px">AM</div>
+    <div style="font-size:16px;font-weight:500">Amina Mwangi</div>
+    <div class="row" style="justify-content:center;gap:5px;margin-top:5px"><span class="badge badge-brand">Pro Member</span><span class="badge badge-teal">✓ Verified L3</span></div>
+    <div style="font-size:11px;color:var(--tx2);margin-top:4px">📍 Dar es Salaam · <span class="stars">★</span> 4.8 · 12 reviews</div>
+    <div style="margin-top:10px;max-width:240px;margin-left:auto;margin-right:auto">
+     <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:3px"><span>Trust Authority Score</span><span style="color:var(--brand);font-weight:500">85%</span></div>
+     <div class="progress-track"><div class="progress-fill" style="width:85%"></div></div>
+     <div class="verify-dots"><div class="vdot done"></div><div class="vdot done"></div><div class="vdot done"></div><div class="vdot pend"></div><div class="vdot pend"></div></div>
+     <div style="font-size:9px;color:var(--tx3);margin-top:3px">Level 3/5 · Add Gov ID → unlock Level 4 + lower fees</div>
+    </div>
+   </div>
+   <div class="grid4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-label">Completion</div><div class="stat-val">98%</div></div>
+    <div class="stat-card"><div class="stat-label">Response</div><div class="stat-val" style="font-size:14px">&lt;30m</div></div>
+    <div class="stat-card"><div class="stat-label">Disputes</div><div class="stat-val">0.2%</div></div>
+    <div class="stat-card"><div class="stat-label">Sentiment</div><div class="stat-val">95%</div></div>
+   </div>
+   <div class="sec-title">Skills</div>
+   <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"><span class="chip on">Cleaning</span><span class="chip on">Delivery</span><span class="chip on">Customer Service</span><span class="chip on">Photography</span><span class="chip on">Data Entry</span></div>
+   <div class="sec-title">Bio</div>
+   <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:12px">Professional service provider with 5 years experience in domestic services, delivery coordination and client management across Dar es Salaam and Arusha.</div>
+   <div class="row"><button class="btn btn-primary" style="flex:1">Edit Profile</button><button class="btn" onclick="go('settings')">Settings</button><button class="btn" onclick="go('wallet')">Wallet</button></div>
+  </div>
+
+  <!-- ═══ COMPLIANCE ═══ -->
+  <div class="page" id="pg-compliance">
+   <div class="sec-title">Policy compliance engine</div>
+   <div class="compliance-row"><div style="width:22px;height:22px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">✓</div><div><div style="font-weight:500;margin-bottom:1px">Tanzania Data Protection Act</div><div style="color:var(--tx3)">User data stored with full TDPA compliance. Access logs active.</div></div></div>
+   <div class="compliance-row"><div style="width:22px;height:22px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">✓</div><div><div style="font-weight:500;margin-bottom:1px">PCI-DSS Level 1 (via Stripe)</div><div style="color:var(--tx3)">All payment flows secured. No card data stored on platform.</div></div></div>
+   <div class="compliance-row"><div style="width:22px;height:22px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">✓</div><div><div style="font-weight:500;margin-bottom:1px">Content Moderation Active</div><div style="color:var(--tx3)">All gig listings validated against policy rules before publish.</div></div></div>
+   <div class="compliance-row"><div style="width:22px;height:22px;border-radius:50%;background:var(--amber-light);color:var(--amber-dark);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">!</div><div><div style="font-weight:500;margin-bottom:1px">Age Verification Pending</div><div style="color:var(--tx3)">Government ID not yet uploaded. Required for Level 4 trust.</div></div></div>
+   <div class="divider"></div>
+   <div class="sec-title">Content validator</div>
+   <textarea class="textarea" id="content-validator" rows="3" placeholder="Paste gig description to validate against policy rules..."></textarea>
+   <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="runValidation()">Validate Content</button>
+   <div id="validation-result" style="margin-top:8px;font-size:11px"></div>
+   <div class="divider"></div>
+   <div class="sec-title">Legal documents (Tanzania)</div>
+   <div style="display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg2);border-radius:var(--r);font-size:11px"><span>Terms of Service · v2026.01</span><button class="btn btn-sm">View</button></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg2);border-radius:var(--r);font-size:11px"><span>Privacy Policy · v2026.01</span><button class="btn btn-sm">View</button></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg2);border-radius:var(--r);font-size:11px"><span>Cookie Policy · v2026.01</span><button class="btn btn-sm">View</button></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg2);border-radius:var(--r);font-size:11px"><span>Compliance Statement · v2026.01</span><button class="btn btn-sm">View</button></div>
+   </div>
+  </div>
+
+  <!-- ═══ SETTINGS ═══ -->
+  <div class="page" id="pg-settings">
+   <div class="sec-title">Appearance</div>
+   <div class="card" style="margin-bottom:12px">
+    <div class="card-body">
+     <div class="row-between" style="padding:8px 0;border-bottom:0.5px solid var(--bdr)"><div><div style="font-size:12px;font-weight:500">Dark Mode</div><div style="font-size:10px;color:var(--tx3)">Toggle viewing experience</div></div><div class="toggle" id="tgl-dark" onclick="toggleIt('tgl-dark')"><div class="toggle-thumb"></div></div></div>
+     <div class="row-between" style="padding:8px 0"><div><div style="font-size:12px;font-weight:500">Language</div></div><select style="font-size:11px;border:0.5px solid var(--bdr);border-radius:var(--r);padding:3px 7px;background:var(--bg);color:var(--tx)"><option>English</option><option>Kiswahili</option><option>Français</option></select></div>
+    </div>
+   </div>
+   <div class="sec-title">Subscription tier</div>
+   <div class="plan-card current">
+    <div class="row-between" style="margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Pro Infrastructure <span class="badge badge-brand" style="font-size:9px">Active</span></div><div style="font-size:10px;color:var(--tx3);margin-top:1px">Commission: 10% · 15 active gigs · Auctions enabled</div></div><div style="font-size:16px;font-weight:500;color:var(--brand)">15,000 <span style="font-size:10px;font-weight:400;color:var(--tx3)">TZS/mo</span></div></div>
+    <div class="grid2" style="font-size:10px;color:var(--tx2);gap:3px;margin-bottom:8px">
+     <span>✓ Priority AI Matching (×2)</span><span>✓ 5 gig boosts/mo</span><span>✓ Advanced analytics</span><span>✓ High-priority support</span>
+    </div>
+    <button class="btn btn-sm" style="width:100%">Manage Subscription</button>
+   </div>
+   <div class="plan-card">
+    <div class="row-between" style="margin-bottom:8px"><div><div style="font-size:13px;font-weight:500">Elite Authority <span class="badge badge-amber" style="font-size:9px">Upgrade</span></div><div style="font-size:10px;color:var(--tx3);margin-top:1px">Commission: 7% · Unlimited gigs · 20 boosts/mo</div></div><div style="font-size:16px;font-weight:500">45,000 <span style="font-size:10px;font-weight:400;color:var(--tx3)">TZS/mo</span></div></div>
+    <button class="btn btn-teal btn-sm" style="width:100%">Upgrade to Elite</button>
+   </div>
+   <div class="sec-title" style="margin-top:12px">Notifications</div>
+   <div class="card">
+    <div class="card-body">
+     <div class="row-between" style="padding:7px 0;border-bottom:0.5px solid var(--bdr)"><span style="font-size:12px;font-weight:500">Push Notifications</span><div class="toggle on" id="tgl-push" onclick="toggleIt('tgl-push')"><div class="toggle-thumb"></div></div></div>
+     <div class="row-between" style="padding:7px 0;border-bottom:0.5px solid var(--bdr)"><span style="font-size:12px;font-weight:500">Email Updates</span><div class="toggle" id="tgl-email" onclick="toggleIt('tgl-email')"><div class="toggle-thumb"></div></div></div>
+     <div class="row-between" style="padding:7px 0"><span style="font-size:12px;font-weight:500">SMS Alerts (M-Pesa integration)</span><div class="toggle on" id="tgl-sms" onclick="toggleIt('tgl-sms')"><div class="toggle-thumb"></div></div></div>
+    </div>
+   </div>
+   <div style="margin-top:12px;display:flex;flex-direction:column;gap:5px">
+    <button class="btn" style="justify-content:start;gap:8px">🔐 Security Center</button>
+    <button class="btn" style="justify-content:start;gap:8px" onclick="go('wallet')">💳 Payment Methods</button>
+    <button class="btn" style="justify-content:start;gap:8px;color:var(--red);border-color:var(--red)">← Sign Out</button>
+   </div>
+   <div style="text-align:center;padding-top:12px;font-size:10px;color:var(--tx3)">Linka v8.0.0 · Tanzania · TZS</div>
+  </div>
+
+  <!-- ═══ ADMIN ═══ -->
+  <div class="page" id="pg-admin">
+   <div class="row-between" style="margin-bottom:12px">
+    <div><div style="font-size:15px;font-weight:500">Executive Dashboard</div><div style="font-size:10px;color:var(--tx3)">Linka Platform · Venture-scale analytics</div></div>
+    <div class="row"><button class="btn btn-sm">Filter</button><button class="btn btn-primary btn-sm">↓ Export</button></div>
+   </div>
+   <div class="grid4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-label">GMV</div><div class="stat-val">8.4M</div><div class="stat-trend trend-up">▲ +12.4% MoM</div></div>
+    <div class="stat-card"><div class="stat-label">Take Rate</div><div class="stat-val">9.2%</div><div class="stat-trend trend-flat">Stable</div></div>
+    <div class="stat-card"><div class="stat-label">MAU</div><div class="stat-val">12,500</div><div class="stat-trend trend-up">▲ +18.2%</div></div>
+    <div class="stat-card"><div class="stat-label">Repeat Rate</div><div class="stat-val">88%</div><div class="stat-trend trend-up">▲ +4.1%</div></div>
+   </div>
+   <div class="grid2">
+    <div>
+     <div class="sec-title">GMV trend — 7 cycles</div>
+     <div class="card">
+      <div class="card-body">
+       <div style="display:flex;align-items:end;height:80px;gap:5px;padding-bottom:18px;position:relative">
+        <div class="bar-col"><div class="bar-block" style="height:30%;background:var(--brand)"></div><span class="bar-label">Jan</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:43%;background:var(--brand)"></div><span class="bar-label">Feb</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:57%;background:var(--brand)"></div><span class="bar-label">Mar</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:50%;background:var(--brand)"></div><span class="bar-label">Apr</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:76%;background:var(--brand)"></div><span class="bar-label">May</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:88%;background:var(--teal)"></div><span class="bar-label">Jun</span></div>
+        <div class="bar-col"><div class="bar-block" style="height:100%;background:var(--amber)"></div><span class="bar-label">Jul</span></div>
+       </div>
+      </div>
+     </div>
+     <div class="sec-title" style="margin-top:10px">Category heatmap</div>
+     <div class="card"><div class="card-body">
+      <div style="margin-bottom:7px"><div class="row-between" style="font-size:10px;margin-bottom:3px"><span>Cleaning</span><span>45%</span></div><div class="progress-track"><div class="progress-fill" style="width:45%"></div></div></div>
+      <div style="margin-bottom:7px"><div class="row-between" style="font-size:10px;margin-bottom:3px"><span>Delivery</span><span>30%</span></div><div class="progress-track"><div class="progress-fill teal" style="width:30%"></div></div></div>
+      <div style="margin-bottom:7px"><div class="row-between" style="font-size:10px;margin-bottom:3px"><span>Technical</span><span>15%</span></div><div class="progress-track"><div class="progress-fill amber" style="width:15%"></div></div></div>
+      <div><div class="row-between" style="font-size:10px;margin-bottom:3px"><span>Creative</span><span>10%</span></div><div class="progress-track"><div class="progress-fill" style="width:10%;background:#6366f1"></div></div></div>
+     </div></div>
+    </div>
+    <div>
+     <div class="sec-title">Regional hubs</div>
+     <div class="card"><div class="card-body">
+      <div class="hub-row"><span style="flex:1;font-weight:500">Dar es Salaam</span><div style="flex:2;margin:0 8px"><div class="progress-track"><div class="progress-fill" style="width:92%"></div></div></div><span style="font-size:10px;color:var(--tx3);width:28px">92%</span><span class="badge badge-teal" style="font-size:9px">Mature</span></div>
+      <div class="hub-row"><span style="flex:1;font-weight:500">Arusha</span><div style="flex:2;margin:0 8px"><div class="progress-track"><div class="progress-fill" style="width:64%"></div></div></div><span style="font-size:10px;color:var(--tx3);width:28px">64%</span><span class="badge badge-brand" style="font-size:9px">Growing</span></div>
+      <div class="hub-row"><span style="flex:1;font-weight:500">Mwanza</span><div style="flex:2;margin:0 8px"><div class="progress-track"><div class="progress-fill" style="width:38%"></div></div></div><span style="font-size:10px;color:var(--tx3);width:28px">38%</span><span class="badge badge-gray" style="font-size:9px">Emerging</span></div>
+      <div class="hub-row"><span style="flex:1;font-weight:500">Dodoma</span><div style="flex:2;margin:0 8px"><div class="progress-track"><div class="progress-fill" style="width:22%"></div></div></div><span style="font-size:10px;color:var(--tx3);width:28px">22%</span><span class="badge badge-gray" style="font-size:9px">Seed</span></div>
+     </div></div>
+     <div class="sec-title" style="margin-top:10px">Dispute & trust log <span class="badge badge-teal" style="font-size:9px;vertical-align:middle">99.8%</span></div>
+     <div class="card"><div class="card-body" style="padding:0">
+      <div class="row-between" style="padding:9px 12px;border-bottom:0.5px solid var(--bdr)"><div class="row"><div style="width:26px;height:26px;border-radius:var(--r);background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:11px">✓</div><div><div style="font-size:11px;font-weight:500">Payment Delay</div><div style="font-size:9px;color:var(--tx3)">#DIS-102 · 2h ago</div></div></div><span class="badge badge-green">Resolved</span></div>
+      <div class="row-between" style="padding:9px 12px;border-bottom:0.5px solid var(--bdr)"><div class="row"><div style="width:26px;height:26px;border-radius:var(--r);background:var(--amber-light);display:flex;align-items:center;justify-content:center;font-size:11px">⚠</div><div><div style="font-size:11px;font-weight:500">Scope Mismatch</div><div style="font-size:9px;color:var(--tx3)">#DIS-101 · 5h ago</div></div></div><span class="badge badge-amber">In Review</span></div>
+      <div class="row-between" style="padding:9px 12px"><div class="row"><div style="width:26px;height:26px;border-radius:var(--r);background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:11px">✓</div><div><div style="font-size:11px;font-weight:500">ID Verification</div><div style="font-size:9px;color:var(--tx3)">#DIS-100 · 1d ago</div></div></div><span class="badge badge-green">Approved</span></div>
+     </div></div>
+    </div>
+   </div>
+  </div>
+
+ </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay">
+ <div class="modal">
+  <div class="modal-header">
+   <div style="font-size:15px;font-weight:500" id="modal-title">Apply</div>
+   <div style="font-size:11px;opacity:.7;margin-top:2px" id="modal-subtitle">Complete your application</div>
+  </div>
+  <div class="modal-body" id="modal-body"></div>
+  <div class="modal-footer" id="modal-footer"></div>
+ </div>
+</div>
+
+<script>
+const pages={home:'Home',explore:'Explore Gigs',gigs:'Gigs Lifecycle',ai:'AI Match Engine',mnada:'Mnada Live',opportunities:'Opportunities Hub',messages:'Messages',notifications:'Notifications',wallet:'Institutional Wallet',profile:'My Profile',compliance:'Compliance',settings:'Settings',admin:'Admin Dashboard'};
+
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('pg-'+id);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.ni').forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active');});
+  document.getElementById('page-title').textContent=pages[id]||id;
+}
+
+function filterCat(el,cat){
+  document.querySelectorAll('#cat-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('#explore-list .gig-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'block':'none';
+  });
+}
+
+function filterOpp(el,type){
+  document.querySelectorAll('#opp-tabs .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('#opp-list .gig-card').forEach(c=>{
+    c.style.display=(c.dataset.otype===type||type==='all')?'block':'none';
+  });
+  // Show all for job, hide others
+  document.querySelectorAll('#opp-list .gig-card').forEach(c=>{
+    c.style.display=c.dataset.otype===type?'block':'none';
+  });
+}
+
+function toggleIt(id){document.getElementById(id).classList.toggle('on')}
+function markAllRead(){document.querySelectorAll('.notif-row.unread').forEach(n=>n.classList.remove('unread'))}
+function readNotif(id){document.getElementById(id).classList.remove('unread')}
+
+// ─── APPLY MODAL ───
+function openApply(title, budget){
+  document.getElementById('modal-title').textContent='Apply: '+title;
+  document.getElementById('modal-subtitle').textContent='Budget: '+budget.toLocaleString()+' TZS · Your profile will be attached';
+  document.getElementById('modal-body').innerHTML=`
+   <div style="margin-bottom:10px">
+    <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Full Name</div>
+    <input class="input" value="Amina Mwangi" />
+   </div>
+   <div style="margin-bottom:10px">
+    <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Proposed Budget (TZS)</div>
+    <input class="input" type="number" value="${budget}" id="proposed-budget" />
+   </div>
+   <div style="margin-bottom:10px">
+    <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Cover Letter</div>
+    <textarea class="textarea" rows="3" placeholder="Why are you a great fit for this gig?"></textarea>
+   </div>
+   <div style="padding:8px;background:var(--teal-light);border-radius:var(--r);font-size:10px;color:var(--teal-dark)">✓ Level 3 verification and trust score 85% will be attached to this application.</div>
+  `;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitApply('${title}')">Submit Application</button>`;
+  showModal();
+}
+
+function submitApply(title){
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">✓</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">Application Submitted!</div><div style="font-size:11px;color:var(--tx3)">Your application for <strong>${title}</strong> has been received. You'll be notified of any updates.</div></div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal()">Done</button>`;
+}
+
+// ─── POST GIG MODAL ───
+function openPostGig(){
+  document.getElementById('modal-title').textContent='Post a New Gig';
+  document.getElementById('modal-subtitle').textContent='Content will be validated for policy compliance';
+  document.getElementById('modal-body').innerHTML=`
+   <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Gig Title</div><input class="input" placeholder="e.g. Office Cleaning – 3 hours" id="pg-title" /></div>
+   <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Category</div><select class="input" style="height:32px"><option>Cleaning</option><option>Delivery</option><option>Tech</option><option>Design</option><option>Other</option></select></div>
+   <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Budget (TZS)</div><input class="input" type="number" placeholder="45000" id="pg-budget" /></div>
+   <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Description</div><textarea class="textarea" rows="3" id="pg-desc" placeholder="Describe the job in detail..."></textarea></div>
+   <div style="padding:8px;background:var(--brand-light);border-radius:var(--r);font-size:10px;color:var(--brand)">⚡ Content will be automatically validated for policy compliance (child safety, illegal activity, gambling) before posting.</div>
+  `;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="postGig()">Validate & Post</button>`;
+  showModal();
+}
+
+function postGig(){
+  const title=document.getElementById('pg-title').value||'New Gig';
+  const desc=document.getElementById('pg-desc').value||'';
+  // Simulate policy check
+  const bad=['escort','adult','gambling','weapon','drugs'];
+  const hasBad=bad.some(w=>desc.toLowerCase().includes(w)||title.toLowerCase().includes(w));
+  if(hasBad){
+    document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">⚠</div><div style="font-size:13px;font-weight:500;color:var(--red);margin-bottom:6px">Policy Violation Detected</div><div style="font-size:11px;color:var(--tx3)">Your gig content did not pass policy validation. Please revise and resubmit.</div></div>`;
+    document.getElementById('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="openPostGig()">← Revise</button>`;
+    return;
+  }
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">✓</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">Gig Posted!</div><div style="font-size:11px;color:var(--tx3)"><strong>${title}</strong> passed policy validation and is now live on the marketplace.</div></div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal()">Done</button>`;
+}
+
+// ─── GIG LIFECYCLE ───
+function confirmComplete(id){
+  document.getElementById('modal-title').textContent='Confirm Job Completion';
+  document.getElementById('modal-subtitle').textContent='Both parties must confirm to release escrow';
+  document.getElementById('modal-body').innerHTML=`
+   <div style="padding:12px;background:var(--teal-light);border-radius:var(--r);margin-bottom:10px;font-size:11px;color:var(--teal-dark)">✓ You are confirming that this job has been completed satisfactorily. Confirming will trigger escrow release once the worker also confirms.</div>
+   <div style="font-size:11px;color:var(--tx2)">Worker confirmation status: <strong>Pending</strong></div>
+   <div style="margin-top:10px"><div style="font-size:10px;color:var(--tx3);margin-bottom:4px">Rate this worker</div><div style="font-size:20px;cursor:pointer" id="star-row">☆ ☆ ☆ ☆ ☆</div></div>
+  `;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-teal" onclick="doConfirmComplete()">Confirm & Release</button>`;
+  showModal();
+}
+function doConfirmComplete(){
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">✓</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">Confirmation Sent!</div><div style="font-size:11px;color:var(--tx3)">Escrow payment will be released once worker confirms. Awaiting worker confirmation...</div></div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal()">Done</button>`;
+}
+function lockJob(id){
+  document.getElementById('modal-title').textContent='Lock Job & Start';
+  document.getElementById('modal-subtitle').textContent='Moves gig to In Progress status';
+  document.getElementById('modal-body').innerHTML=`<div style="font-size:11px;color:var(--tx2);line-height:1.6">Locking this job will:<br>• Move status to <strong>In Progress</strong><br>• Notify the assigned worker to begin<br>• Start GPS tracking (if enabled)<br>• Lock escrow funds</div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doLock()">Lock & Start</button>`;
+  showModal();
+}
+function doLock(){
+  closeModal();
+  const rows=document.querySelectorAll('#gig-lifecycle .gig-card');
+  if(rows[1]){
+    const b=rows[1].querySelector('.badge');
+    if(b){b.className='badge status-badge-in_progress';b.textContent='In Progress';}
+  }
+}
+
+// ─── COMPLIANCE ───
+function runValidation(){
+  const txt=document.getElementById('content-validator').value;
+  const r=document.getElementById('validation-result');
+  if(!txt.trim()){r.innerHTML='<div style="color:var(--tx3)">Enter content to validate.</div>';return;}
+  const bad=['escort','adult','gambling','weapon','drugs','illegal','minor','underage'];
+  const found=bad.filter(w=>txt.toLowerCase().includes(w));
+  if(found.length){
+    r.innerHTML=`<div style="padding:8px;background:var(--red-light);border-radius:var(--r);color:var(--red)">⚠ Violations found: <strong>${found.join(', ')}</strong>. Content blocked.</div>`;
+  } else {
+    r.innerHTML=`<div style="padding:8px;background:var(--green-light);border-radius:var(--r);color:var(--green)">✓ Content passed all policy checks. Safe to publish.</div>`;
+  }
+}
+
+// ─── MNADA ───
+var bidState={1:{cur:285000,reserve:350000,buynow:500000},2:{cur:120000,reserve:100000,buynow:200000}};
+var activeAuc=1;
+var auc1End=Date.now()+900000;
+var auc2End=Date.now()+300000;
+function fmt(end){const d=end-Date.now();if(d<=0)return'ENDED';const m=Math.floor(d/60000),s=Math.floor((d%60000)/1000);return m+'m '+s+'s';}
+setInterval(()=>{
+  document.getElementById('at1').textContent='⏱ '+fmt(auc1End);
+  document.getElementById('at2').textContent='⏱ '+fmt(auc2End);
+},1000);
+
+function selectAuction(n,el){
+  document.querySelectorAll('#pg-mnada .gig-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  activeAuc=n;
+  const st=bidState[n];
+  document.getElementById('bid-display').textContent=st.cur.toLocaleString()+' TZS';
+  const pct=Math.min(100,Math.round(st.cur/st.reserve*100));
+  document.getElementById('bid-progress').style.width=pct+'%';
+  document.getElementById('reserve-status').textContent=st.cur>=st.reserve?'✓ Reserve met':'Not yet met';
+  document.getElementById('buynow-btn').textContent='Buy It Now – '+st.buynow.toLocaleString()+' TZS';
+  document.getElementById('bid-input').value='';
+}
+
+function placeBid(){
+  const inp=document.getElementById('bid-input');
+  const val=parseInt(inp.value)||0;
+  const st=bidState[activeAuc];
+  if(val<=st.cur){inp.style.borderColor='var(--red)';setTimeout(()=>inp.style.borderColor='',1200);return;}
+  // Anti-snipe check
+  const end=activeAuc===1?auc1End:auc2End;
+  if(end-Date.now()<120000){
+    if(activeAuc===1)auc1End=Date.now()+120000;else auc2End=Date.now()+120000;
+  }
+  st.cur=val;
+  bidState[activeAuc]=st;
+  document.getElementById('bid-display').textContent=val.toLocaleString()+' TZS';
+  document.getElementById('ab'+activeAuc).textContent=val.toLocaleString()+' TZS';
+  const pct=Math.min(100,Math.round(val/st.reserve*100));
+  document.getElementById('bid-progress').style.width=pct+'%';
+  document.getElementById('reserve-status').textContent=val>=st.reserve?'✓ Reserve met':'Not yet met';
+  // Prepend to history
+  const hist=document.getElementById('bid-hist');
+  const row=document.createElement('div');
+  row.className='row-between';
+  row.style.cssText='padding:5px 0;border-bottom:0.5px solid var(--bdr);font-size:11px';
+  row.innerHTML=`<div class="row"><div class="ava ava-sm" style="width:22px;height:22px;background:var(--teal);color:#fff;font-size:9px">Y</div><span style="font-weight:500">You</span><span class="badge badge-teal" style="font-size:9px;margin-left:4px">Highest</span></div><span style="font-weight:500;color:var(--brand)">${val.toLocaleString()}</span>`;
+  hist.prepend(row);
+  inp.value='';
+  inp.style.borderColor='var(--teal)';
+  setTimeout(()=>inp.style.borderColor='',1500);
+}
+
+function quickBid(delta){
+  const st=bidState[activeAuc];
+  document.getElementById('bid-input').value=st.cur+delta;
+  placeBid();
+}
+
+function buyNow(){
+  const st=bidState[activeAuc];
+  document.getElementById('modal-title').textContent='Buy It Now';
+  document.getElementById('modal-subtitle').textContent='Instantly win this auction';
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:14px"><div style="font-size:22px;font-weight:500;color:var(--brand);margin-bottom:6px">${st.buynow.toLocaleString()} TZS</div><div style="font-size:11px;color:var(--tx2)">Funds will be held in escrow until the service is delivered. Platform takes 10% commission.</div></div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-amber" onclick="confirmBuyNow(${st.buynow})">Confirm Purchase</button>`;
+  showModal();
+}
+function confirmBuyNow(amt){
+  document.getElementById('modal-body').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">🎉</div><div style="font-size:14px;font-weight:500;margin-bottom:4px">Auction Won!</div><div style="font-size:11px;color:var(--tx3)">${amt.toLocaleString()} TZS placed in escrow. You'll be notified when the seller accepts.</div></div>`;
+  document.getElementById('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal()">Done</button>`;
+}
+
+// ─── SEARCH ───
+function liveSearch(q){
+  if(!q)return;
+  // highlight in current page
+}
+
+// ─── MODAL UTILS ───
+function showModal(){document.getElementById('modal-overlay').classList.remove('hidden')}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden')}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
